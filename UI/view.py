@@ -1,6 +1,7 @@
 import flet as ft
 import os
 
+
 class View(ft.UserControl):
     def __init__(self, page: ft.Page):
         super().__init__()
@@ -40,13 +41,12 @@ class View(ft.UserControl):
         self._btnCrea = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handleCreaGrafo)
         self._ddStazPartenza = ft.Dropdown(label="Stazione di Partenza")
         self._ddStazArrivo = ft.Dropdown(label="Stazione di Arrivo")
-        self._btnCalcola = ft.ElevatedButton(text="Calcola Raggiungibili", on_click=self._controller.handleCercaRaggiungibili)
-
+        self._btnCalcola = ft.ElevatedButton(text="Calcola Raggiungibili",
+                                             on_click=self._controller.handleCercaRaggiungibili)
 
         #Load elements in DD
         self._controller.loadFermate(self._ddStazPartenza)
         self._controller.loadFermate(self._ddStazArrivo)
-
 
         row2 = ft.Row([self._btnCrea,
                        self._ddStazPartenza,
@@ -66,6 +66,7 @@ class View(ft.UserControl):
 
     def update_page(self):
         self._page.update()
+
     @property
     def controller(self):
         return self._controller
