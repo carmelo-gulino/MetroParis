@@ -1,6 +1,6 @@
 from database.DAO import DAO
 import networkx as nx
-from time import time
+from matplotlib import pyplot as plt
 
 
 class Model:
@@ -13,9 +13,7 @@ class Model:
 
     def buildGraph(self):
         """
-        Costruisce il grafo con due query:
-        - una per ottenere i nodi (le fermate)
-        - una per ottenere gli archi (le connessioni)
+        Costruisce il grafo (tre modalità diverse)
         """
         self._grafo.add_nodes_from(self._fermate)  #aggiungo le fermate al grafo
 
@@ -38,15 +36,63 @@ class Model:
         print(f"Elapsed: {t2-t1} s")"""
 
         # MODO 3: carico tutte le connessioni su python e le gestisco internamente: ESEGUE UNA SOLA QUERY
-        t1 = time()
         allConnessioni = DAO.getAllConnessioni()
         for c in allConnessioni:
             u_nodo = self._idMap[c.id_stazP]  # creo il nodo u tramite
             v_nodo = self._idMap[c.id_stazA]  # creo il nodo u tramite
             self._grafo.add_edge(u_nodo, v_nodo)  # aggiungo l'arco con i due oggetti
-            print(f"Added edge between {u_nodo} and {v_nodo}")
-        t2 = time()
-        print(f"Elapsed: {t2-t1} s")
+
+    def builGraphPesato(self):
+        """
+        Costruisce un grafo pesato
+        """
+        self._grafo.clear_edges()
+        self._grafo.add_nodes_from(self._fermate)
+        self.add_edge_pesati()
+        
+    def add_edge_pesati(self):
+        """
+        Costruisce gli archi del grafo e gli dà un peso progressivo a partire da 1 a seconda del numero
+        """
+        self._grafo.clear_edges()
+        allConnessioni = DAO.getAllConnessioni()
+        for c in allConnessioni:
+            if self._grafo.has_edge(self._idMap[c.id_stazP], self._idMap[c.id_stazA]):
+                self._grafo[self._idMap[c.id_stazP]][self._idMap[c.id_stazA]]["weight"] += 1
+            else:
+                self._grafo.add_edge(self._idMap[c.id_stazP], self._idMap[c.id_stazA], weight=1)
+
+    def get_nodes_BFS(self, source):
+        """
+        Cerca i vicini con metodo BFS
+        """
+        edges = nx.bfs_edges(self._grafo, source)
+        visited = []
+        for u, v in edges:
+            visited.append(v)
+        return visited
+
+    def get_nodes_DFS(self, source):
+        """
+        Cerca i vicini con il metodo DFS
+        """
+        edges = nx.dfs_edges(self._grafo, source)
+        visited = []
+        for u, v in edges:
+            visited.append(v)
+        return visited
+
+    def getArchiPesoMaggiore(self):
+        if len(self._grafo.edges) == 0:
+            print("Il grafo è vuoto")
+            return
+        edges = self._grafo.edges
+        result = []
+        for u, v in edges:
+            peso = self._grafo[u][v]["weight"]
+            if peso > 1:
+                result.append((u, v, peso))
+        return result
 
     @property
     def fermate(self):

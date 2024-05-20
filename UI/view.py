@@ -38,11 +38,12 @@ class View(ft.UserControl):
                       alignment=ft.MainAxisAlignment.CENTER)
 
         # Row with controls
-        self._btnCrea = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handleCreaGrafo)
+        self._btnCrea = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handle_crea_grafo_pesato)
         self._ddStazPartenza = ft.Dropdown(label="Stazione di Partenza")
         self._ddStazArrivo = ft.Dropdown(label="Stazione di Arrivo")
         self._btnCalcola = ft.ElevatedButton(text="Calcola Raggiungibili",
-                                             on_click=self._controller.handleCercaRaggiungibili)
+                                             on_click=self._controller.handleCercaRaggiungibili,
+                                             disabled=True)  #disabilitato finché non crea il grafo
 
         #Load elements in DD
         self._controller.loadFermate(self._ddStazPartenza)
@@ -74,3 +75,11 @@ class View(ft.UserControl):
     @controller.setter
     def controller(self, controller):
         self._controller = controller
+
+    def print_raggiungibili(self, visited):
+        self.lst_result.controls.clear()
+        self.lst_result.controls.append(
+            ft.Text(f"Dalla stazione {self._controller._fermataPartenza} posso raggiungere {len(visited)} stazioni:"))
+        for v in visited:
+            self.lst_result.controls.append(ft.Text(v))
+        self.update_page()

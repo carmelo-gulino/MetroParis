@@ -16,10 +16,12 @@ class Controller:
         self._view.lst_result.controls.append(ft.Text("Grafo correttamente"))
         self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nNodes} nodi"))
         self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nEdges} archi"))
+        self._view._btnCalcola.disabled = False  #abilito il click del tasto
         self._view.update_page()
 
-    def handleCercaRaggiungibili(self,e):
-        pass
+    def handleCercaRaggiungibili(self, e):
+        visited = self._model.get_nodes_BFS(self._fermataPartenza)
+        self._view.print_raggiungibili(visited)
 
     def loadFermate(self, dd: ft.Dropdown()):
         fermate = self._model.fermate
@@ -35,16 +37,30 @@ class Controller:
                                                      data=f,
                                                      on_click=self.read_DD_Arrivo))
 
-    def read_DD_Partenza(self,e):
+    def read_DD_Partenza(self, e):
         print("read_DD_Partenza called ")
         if e.control.data is None:
             self._fermataPartenza = None
         else:
             self._fermataPartenza = e.control.data
 
-    def read_DD_Arrivo(self,e):
+    def read_DD_Arrivo(self, e):
         print("read_DD_Arrivo called ")
         if e.control.data is None:
             self._fermataArrivo = None
         else:
             self._fermataArrivo = e.control.data
+
+    def handle_crea_grafo_pesato(self, e):
+        self._model.builGraphPesato()
+        nNodes = self._model.getNumNodes()
+        nEdges = self._model.getNumEdges()
+        self._view.lst_result.controls.clear()
+        self._view.lst_result.controls.append(ft.Text("Grafo pesato creato correttamente"))
+        self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nNodes} nodi"))
+        self._view.lst_result.controls.append(ft.Text(f"Il grafo ha {nEdges} archi"))
+        self._view._btnCalcola.disabled = False
+        archi_peso_maggiore = self._model.getArchiPesoMaggiore()
+        for edge in archi_peso_maggiore:
+            self._view.lst_result.controls.append(ft.Text(edge))
+        self._view.update_page()
